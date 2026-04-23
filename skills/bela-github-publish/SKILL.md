@@ -15,11 +15,12 @@ description: >
 
 ## 命名规范
 
-所有发布到 GitHub 的仓库、plugin、skill，统一遵守：
+**读取用户前缀：** 先读 `shared/publish-profile.md` 的 `repo_prefix` 字段，用该前缀构造仓库名。
 
-- **前缀：** `bela-`（b-e-l-a，单 L）
-- **格式：** `bela-` + 内容描述，全小写，用连字符分隔
-- **示例：** `bela-content-creator`、`bela-job-briefing`、`bela-topic-picker`
+- **格式：** `{repo_prefix}` + 内容描述，全小写，用连字符分隔
+- **示例：** 若 `repo_prefix: bela`，则命名为 `bela-content-creator`、`bela-job-briefing`
+
+> 如果 `shared/publish-profile.md` 不存在：提示用户"请先复制 `publish-profile.template.md` 到 `shared/` 并填写 `repo_prefix`，或告诉我你想用的前缀，本次会话直接使用"。不要假设前缀，不要写死。
 
 ## 语言页面规范
 
@@ -102,7 +103,8 @@ skills/
 ### 推荐包含
 
 ```
-[project-name].template.md   # 用户本地配置文件的填写模板（不含真实数据）
+publish-profile.template.md  # 命名前缀、GitHub 账号等发布配置的填写模板
+[project-name].template.md   # 其他用户本地配置文件的填写模板（不含真实数据）
 ```
 
 ---
