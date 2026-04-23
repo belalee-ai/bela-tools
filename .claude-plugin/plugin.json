@@ -1,0 +1,8 @@
+{
+  "name": "bela-tools",
+  "version": "0.1.0",
+  "description": "Developer toolbox for bela workflows — GitHub publishing and skill hygiene",
+  "author": "belalee-ai",
+  "license": "MIT",
+  "keywords": ["github", "publish", "skills", "audit", "hygiene", "tools", "workflow"]
+}

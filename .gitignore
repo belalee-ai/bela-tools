@@ -1,0 +1,5 @@
+# Local private config
+shared/
+
+# OS
+.DS_Store
