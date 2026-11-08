@@ -1,0 +1,58 @@
+{
+  "note": "2026-10-30 会员/非会员同一车 10 件。price=券前价，由会员录屏分摊结果反推（Breville 5090、椅子 3875 与明细弹窗一致）",
+  "coupon_meta": {
+    "88VIP消费券": {"deadline": "2026-11-03T23:59:00+08:00"}
+  },
+  "platforms": {
+    "taobao": {
+      "coupons": [
+        {"name": "家电数码消费券 满8000减800", "threshold": 8000, "minus": 800, "only_tags": ["家电数码券"], "stack_group": "家电数码券"},
+        {"name": "家电数码消费券 满5000减500", "threshold": 5000, "minus": 500, "only_tags": ["家电数码券"], "stack_group": "家电数码券"},
+        {"name": "家电数码消费券 满3000减300", "threshold": 3000, "minus": 300, "only_tags": ["家电数码券"], "stack_group": "家电数码券"},
+        {"name": "家电数码消费券 满1500减150", "threshold": 1500, "minus": 150, "only_tags": ["家电数码券"], "stack_group": "家电数码券"},
+        {"name": "苹果惊喜券 满2980减300", "threshold": 2980, "minus": 300, "only_tags": ["apple"], "stack_group": "苹果券"}
+      ],
+      "membership": {
+        "name": "88VIP", "fee": 88, "owned": true,
+        "note": "88VIP 消费券 11 月 3 日 23:59 到期",
+        "coupons": [
+          {"name": "88VIP消费券 满8000减1100", "threshold": 8000, "minus": 1100, "only_tags": ["消费券"], "stack_group": "消费券"},
+          {"name": "88VIP消费券 满3000减400", "threshold": 3000, "minus": 400, "only_tags": ["消费券"], "stack_group": "消费券"},
+          {"name": "88VIP消费券 满1500减180", "threshold": 1500, "minus": 180, "only_tags": ["消费券"], "stack_group": "消费券"},
+          {"name": "88VIP惊喜消费券 满480减60", "threshold": 480, "minus": 60, "only_tags": ["消费券"], "stack_group": "消费券"},
+          {"name": "88VIP消费券 满200减25", "threshold": 200, "minus": 25, "only_tags": ["消费券"], "stack_group": "消费券"}
+        ]
+      }
+    }
+  },
+  "shops": {},
+  "items": [
+    {"id": "skii", "name": "SK-II 神仙水入门套", "category": "美妆",
+     "offers": [{"platform": "taobao", "shop": "SK-II官方旗舰店", "price": 1368.3, "list_price": 1440, "tags": ["消费券", "美妆"]}]},
+    {"id": "dji", "name": "大疆 Osmo Pocket 4P", "category": "数码",
+     "offers": [{"platform": "taobao", "shop": "DJI大疆官方旗舰店", "price": 3799, "list_price": 3799, "tags": []}]},
+    {"id": "honeywell", "name": "霍尼韦尔空气净化器", "category": "家电",
+     "offers": [{"platform": "taobao", "shop": "霍尼韦尔空气净化器旗舰店", "price": 3828, "list_price": 6599, "tags": ["家电数码券"], "subsidy": {"rate": 0.15, "cap": 2000}}]},
+    {"id": "nakebella", "name": "Nakebella 宠物推车", "category": "宠物",
+     "offers": [{"platform": "taobao", "shop": "Nakebella旗舰店", "price": 326.4, "list_price": 455, "tags": ["消费券"]}]},
+    {"id": "fregate", "name": "fregate 弗列加特猫粮 7.2kg", "category": "宠物",
+     "offers": [{"platform": "taobao", "shop": "fregate弗列加特旗舰店", "price": 659.2, "list_price": 799, "tags": ["消费券"]}]},
+    {"id": "peets", "name": "Peet's 创世巨星咖啡豆 750g", "category": "食品",
+     "offers": [{"platform": "taobao", "shop": "PEET'S官方旗舰店", "price": 316.1, "list_price": 384, "tags": ["消费券"]}]},
+    {"id": "breville", "name": "Breville BES876 咖啡机", "category": "家电",
+     "offers": [{"platform": "taobao", "shop": "Breville铂富旗舰店", "price": 5090, "list_price": 6790, "tags": ["消费券"]}]},
+    {"id": "iphone", "name": "iPhone 18 Pro 1TB", "category": "数码",
+     "offers": [{"platform": "taobao", "shop": "Apple Store 官方旗舰店", "price": 15499, "list_price": 15499, "tags": ["apple"]}]},
+    {"id": "macbook", "name": "MacBook Pro 14 英寸 1TB", "category": "数码",
+     "offers": [{"platform": "taobao", "shop": "Apple Store 官方旗舰店", "price": 22999, "list_price": 22999, "tags": ["apple"]}]},
+    {"id": "chair", "name": "清闲 OC1 NEW 人体工学椅", "category": "家居",
+     "offers": [{"platform": "taobao", "shop": "清闲旗舰店", "price": 3875, "list_price": 4566, "tags": ["消费券"], "subsidy": {"rate": 0.15, "cap": 2000}}]}
+  ],
+  "assumptions": [
+    "历史材料未逐张确认 threshold_on；新版排除这些未知门槛优惠并提示，不能将本样例输出当成当前活动实付。",
+    "88VIP消费券只对购物车里标了「消费券」的 6 件生效（录屏显示 8000减1100 由这 6 件分摊）；家电数码券只对霍尼韦尔生效",
+    "88VIP消费券、家电数码券、苹果券可以叠加（录屏里同一单同时用了 1100、300、300）",
+    "历史试算曾假设两边都能领到霍尼韦尔和椅子的 15% 国补；本例未确认本次结算账户资格，实际报价排除这两笔补贴",
+    "没算美妆加补券 满1000减140（会员账号没领，非会员账号领了），也没算非会员账号的 86 元小额消费券和 Breville 补贴 70"
+  ]
+}

@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* 布局：手机单栏「下单作战卡」+ 右下角红发小魔女向导，按「决定会员 → 领券 → 分单结算 → 核对」一步步带着走 */
+:root{
+  --bg:#f2f3f6; --paper:#ffffff; --ink:#1d1f2a; --muted:#6b6f80; --line:#dfe1e8;
+  --red:#d33a42; --red-soft:#fbe9ea; --gold:#a8771c; --gold-soft:#f8efdc;
+  --green:#21825a; --green-soft:#e3f3ec; --blue:#3557b7; --blue-soft:#e7ecf8;
+  --bubble:#ffffff; --shadow:0 10px 30px rgba(30,32,50,.14);
+  --hair:#d8432c; --hair-dark:#a92e1e; --skin:#f7d6c1; --blush:#f29a9a; --eye:#2b1d1d;
+  --dress:#2d3150; --hat:#2a2341; --star:#f2c14e;
+  --f-body:"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --f-num:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14151b; --paper:#1d1f28; --ink:#eceef5; --muted:#a2a7b8; --line:#2f3240;
+  --red:#ff6b72; --red-soft:#3a2124; --gold:#e2b45a; --gold-soft:#352b18;
+  --green:#4cc690; --green-soft:#16302a; --blue:#8aa6ff; --blue-soft:#1d2540;
+  --bubble:#262938; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14151b; --paper:#1d1f28; --ink:#eceef5; --muted:#a2a7b8; --line:#2f3240;
+  --red:#ff6b72; --red-soft:#3a2124; --gold:#e2b45a; --gold-soft:#352b18;
+  --green:#4cc690; --green-soft:#16302a; --blue:#8aa6ff; --blue-soft:#1d2540;
+  --bubble:#262938; --shadow:0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 210px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+h1{font-size:26px;font-weight:900;margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font-size:19px;font-weight:900;margin:0;display:flex;align-items:baseline;gap:10px}
+h2 .step{font-family:var(--f-num);font-size:13px;color:var(--paper);background:var(--ink);border-radius:4px;padding:1px 7px;font-weight:500}
+.sub{color:var(--muted);font-size:13px;margin:0}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px}
+
+/* 入场：从可见状态轻轻上浮 */
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i,0) * 55ms)}
+@keyframes rise{from{transform:translateY(16px);opacity:.3}}
+
+/* 总览 */
+.hero{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--red-soft),transparent 70%);animation:glow 5s ease-in-out infinite}
+@keyframes glow{50%{transform:scale(1.25) translate(-10px,10px)}}
+.hero > *{position:relative}
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.totals div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.totals .k{font-size:12px;color:var(--muted)}
+.totals .v{font-size:19px;font-weight:500}
+.totals .v.big{color:var(--red);font-size:22px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;font-weight:700}
+.flow a{padding:4px 10px;border-radius:999px;background:var(--bg);color:var(--ink);text-decoration:none;transition:background .2s,transform .2s}
+.flow a:hover{background:var(--red-soft);transform:translateY(-1px)}
+.flow i{font-style:normal;color:var(--muted);align-self:center}
+.progress{height:8px;background:var(--bg);border-radius:99px;overflow:hidden}
+.progress b{display:block;height:100%;width:0;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1);
+  background:repeating-linear-gradient(-45deg,var(--green) 0 8px,color-mix(in srgb,var(--green) 75%,var(--paper)) 8px 16px);background-size:22px 22px;animation:stripes 1s linear infinite}
+@keyframes stripes{to{background-position:22px 0}}
+.progress-label{font-size:12px;color:var(--muted)}
+
+/* 会员对比卡 */
+.members{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 16px 6px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.members::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold)}
+.members h2{color:var(--gold)}
+.reco{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--gold-soft);border-radius:10px;padding:10px 12px;font-weight:700}
+.reco .badge{font-size:13px;font-weight:900;color:#fff;background:var(--green);border-radius:999px;padding:3px 12px}
+.reco .badge.no{background:var(--red)}
+.reco .badge.flat{background:var(--muted)}
+.mcmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mcmp .col{background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.mcmp .col.on{outline:2px solid var(--green)}
+.mcmp .col .lab{font-size:12px;color:var(--muted);font-weight:700}
+.mcmp .col .big{font-family:var(--f-num);font-size:22px;font-weight:500}
+.mcmp .col.on .big{color:var(--green)}
+.mtbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:2px}
+.mtbl th,.mtbl td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--line)}
+.mtbl th:first-child,.mtbl td:first-child{text-align:left;font-family:var(--f-num)}
+.mtbl th{color:var(--muted);font-weight:700}
+.mnote{font-size:12px;color:var(--muted)}
+
+/* 券根 */
+.group-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:6px 0 -4px}
+.coupon{display:grid;grid-template-columns:92px minmax(0,1fr);background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s,opacity .3s}
+.coupon:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.coupon .face{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 6px;border-right:2px dashed var(--line);text-align:center;gap:2px;position:relative;overflow:hidden}
+.coupon .face::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);animation:shine 4.5s ease-in-out infinite;animation-delay:calc(var(--i,0) * 300ms)}
+@keyframes shine{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.coupon .face .amt{font-family:var(--f-num);font-size:22px;font-weight:500;line-height:1.1}
+.coupon .face .cond{font-size:11px;color:var(--muted)}
+.coupon.vip .face{background:var(--gold-soft);color:var(--gold)}
+.coupon.plat .face{background:var(--red-soft);color:var(--red)}
+.coupon.shop .face{background:var(--blue-soft);color:var(--blue)}
+.coupon.gov .face{background:var(--green-soft);color:var(--green)}
+.coupon .body{padding:11px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.coupon .name{font-weight:700;display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+.coupon .where{font-size:13px}
+.coupon .meta{font-size:12px;color:var(--muted)}
+.tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;white-space:nowrap;flex:none}
+.tag.urgent{background:var(--red);color:var(--paper);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--red) 25%,transparent)}}
+.tag.live{background:var(--ink);color:var(--paper)}
+.tag.have{background:var(--bg);color:var(--muted)}
+
+label.check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;user-select:none;margin-top:2px;align-self:flex-start;padding:3px 10px 3px 6px;border-radius:999px;background:var(--bg);transition:background .2s}
+label.check:hover{background:var(--green-soft)}
+label.check input{width:18px;height:18px;accent-color:var(--green);margin:0}
+
+/* 盖章 */
+[data-key]{position:relative}
+[data-key]::after{content:attr(data-stamp);position:absolute;right:14px;top:10px;font-weight:900;font-size:15px;color:var(--green);border:2.5px solid var(--green);border-radius:6px;padding:0 8px;transform:rotate(-12deg) scale(2.2);opacity:0;pointer-events:none;letter-spacing:.1em}
+.done::after{animation:stamp .4s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes stamp{to{opacity:.9;transform:rotate(-12deg) scale(1)}}
+.done .face,.done .name,.done .where{opacity:.5}
+.done .name span:first-child{text-decoration:line-through}
+
+/* 被小魔女点名时的高亮 */
+.spot{animation:spot 1.4s ease-out 2}
+@keyframes spot{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
+
+/* 订单 */
+.order{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.order:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.order header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);transition:background .4s}
+.order .idx{font-family:var(--f-num);font-size:12px;color:var(--muted)}
+.order h3{margin:0;font-size:17px;font-weight:900}
+.order .pay{text-align:right;flex:none;padding-right:4px}
+.order .pay .k{font-size:11px;color:var(--muted)}
+.order .pay .v{font-family:var(--f-num);font-size:20px;color:var(--red);font-weight:500}
+.order .deadline{font-size:12px;font-weight:700;color:var(--red);margin-top:2px}
+.order .inner{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.order ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.order li{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.order li span:last-child{color:var(--muted);flex:none}
+.uses{display:flex;flex-wrap:wrap;gap:6px}
+.uses span{font-size:12px;border-radius:6px;padding:2px 8px;font-weight:500}
+.uses .vip{background:var(--gold-soft);color:var(--gold)}
+.uses .plat{background:var(--red-soft);color:var(--red)}
+.uses .shop{background:var(--blue-soft);color:var(--blue)}
+.uses .gov{background:var(--green-soft);color:var(--green)}
+.note{font-size:13px;background:var(--bg);border-radius:8px;padding:8px 10px}
+.order.done header{background:var(--green-soft)}
+.order[data-key]::after{top:auto;bottom:14px;right:16px}
+
+/* 核对 */
+.checklist{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:6px 16px}
+.checklist .row{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.checklist .row:last-child{border-bottom:0}
+.checklist .row > span{color:var(--green);font-weight:900}
+.checklist .row b{display:block}
+.checklist .row small{color:var(--muted);font-size:12px}
+.foot{font-size:12px;color:var(--muted);text-align:center}
+button{font:inherit;cursor:pointer}
+button.reset{font-size:12px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+button:focus-visible,label.check input:focus-visible,.flow a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* 红发小魔女向导 */
+.guide{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:4px;z-index:20;max-width:calc(100vw - 20px)}
+.bubble{background:var(--bubble);color:var(--ink);border-radius:16px 16px 4px 16px;box-shadow:var(--shadow);padding:12px 14px;width:min(270px,calc(100vw - 130px));font-size:14px;line-height:1.55;margin-bottom:58px;border:1px solid var(--line);transform-origin:100% 100%;transition:transform .25s,opacity .25s}
+.bubble.swap{animation:pop .35s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.85) translateY(6px);opacity:.4}}
+.bubble .who{font-size:11px;font-weight:700;color:var(--hair);letter-spacing:.08em;margin-bottom:2px}
+.bubble p{margin:0;min-width:0}
+.bubble .acts{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.bubble .go{border:0;background:var(--hair);color:#fff;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;transition:transform .15s}
+.bubble .go:hover{transform:scale(1.05)}
+.bubble .hide{border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:5px 12px;font-size:13px}
+.guide.min .bubble{transform:scale(0);opacity:0;pointer-events:none;width:0;padding:0;border:0;margin:0}
+.witch{width:104px;flex:none;background:none;border:0;padding:0;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18))}
+.witch svg{display:block;width:100%;height:auto;overflow:visible}
+.w-all{animation:bob 3s ease-in-out infinite;transform-origin:60px 150px}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-1.5deg)}}
+.w-eyes{animation:blink 4.2s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.w-arm{transform-origin:84px 108px;animation:wave 1.8s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(12deg)}}
+.w-star{transform-box:fill-box;transform-origin:center;animation:twinkle 1.2s ease-in-out infinite}
+@keyframes twinkle{50%{transform:scale(1.35) rotate(20deg)}}
+.w-hair-l,.w-hair-r{transform-box:fill-box;animation:sway 3s ease-in-out infinite}
+.w-hair-l{transform-origin:top right}.w-hair-r{transform-origin:top left;animation-delay:-1.5s}
+@keyframes sway{50%{transform:rotate(3deg)}}
+.guide.cheer .w-all{animation:hop .5s ease-in-out 3}
+@keyframes hop{50%{transform:translateY(-16px)}}
+.sparkle{position:fixed;pointer-events:none;z-index:30;width:8px;height:8px;border-radius:2px}
+
+@media (min-width:900px){.witch{width:130px}.bubble{margin-bottom:78px}}
+@media (max-width:380px){.totals .v{font-size:16px}.totals .v.big{font-size:19px}.coupon{grid-template-columns:78px minmax(0,1fr)}.witch{width:88px}.bubble{margin-bottom:48px}.mcmp{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}.done::after{opacity:.9;transform:rotate(-12deg)}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="hero rise">
+    <div>
+      <p class="sub">{{SUBTITLE}}</p>
+      <h1>{{HERO_TITLE}}</h1>
+    </div>
+    <div class="totals">
+      <div><span class="k">原价合计</span><span class="v num">{{ORIG}}</span></div>
+      <div><span class="k">相同报价一次结算</span><span class="v num">{{SIMPLE}}</span></div>
+      <div><span class="k">预计总成本</span><span class="v big num" id="bigNum">{{BEST}}</span></div>
+    </div>
+    <p class="sub" style="color:var(--ink)">{{HERO_SUB}}</p>
+    <p class="sub" id="expiredAlert" role="alert" style="color:var(--red)" hidden></p>
+    <div class="flow"><a href="#members">① 决定会员</a><i>→</i><a href="#coupons">② 领券</a><i>→</i><a href="#orders">③ 按顺序结算</a><i>→</i><a href="#verify">④ 付款前核对</a></div>
+    <div class="progress" aria-hidden="true"><b id="bar"></b></div>
+    <div class="progress-label" id="progressLabel">已完成 0 项</div>
+  </div>
+
+  <section id="members">
+    <h2 class="rise"><span class="step">1</span>先决定：会员开不开</h2>
+    <p class="sub">大额付费会员值不值，平台不会告诉你。这张卡先算清。</p>
+    {{SECTION_MEMBERS}}
+  </section>
+
+  <section id="coupons">
+    <h2 class="rise"><span class="step">2</span>把券领齐</h2>
+    <p class="sub">券不领，结算页不会自动出现。下面列的都是这一车要用到的，领完一张勾一张。</p>
+    {{SECTION_COUPONS}}
+  </section>
+
+  <section id="orders">
+    <h2 class="rise"><span class="step">3</span>领完券，回购物车按顺序结算</h2>
+    <p class="sub">每次只勾这一单的商品，点「领券结算」。保持下列方案顺序，已知券的截止时间标在对应订单上。</p>
+    {{SECTION_ORDERS}}
+    <h2>可选加购组合</h2>
+    {{SECTION_ADDONS}}
+  </section>
+
+  <section id="verify">
+    <h2 class="rise"><span class="step">4</span>每一单付款前看一眼</h2>
+    <div class="checklist rise">
+      {{SECTION_VERIFY}}
+    </div>
+  </section>
+
+  <p class="foot">金额是按录屏/截图推算的预计值，以结算页为准 · <button class="reset" id="reset" type="button">清空勾选</button></p>
+</div>
+
+<div class="guide" id="guide" aria-live="polite">
+  <div class="bubble" id="bubble">
+    <div class="who">红发小魔女</div>
+    <p id="say">{{GUIDE_INTRO}}</p>
+    <div class="acts">
+      <button class="go" id="go" type="button">开始，第一步做什么？</button>
+      <button class="hide" id="hide" type="button">先收起</button>
+    </div>
+  </div>
+  <button class="witch" id="witch" type="button" aria-label="红发小魔女：点我看下一步">
+    <svg viewBox="0 0 120 152" aria-hidden="true">
+      <g class="w-all">
+        <path d="M24 66C18 34 40 18 60 18c22 0 42 16 36 50 4 24-4 44-12 50H36c-10-8-16-28-12-52z" fill="var(--hair)"/>
+        <path class="w-hair-l" d="M35 62c-8 22-4 42-12 54 14-4 18-26 16-52z" fill="var(--hair-dark)"/>
+        <path class="w-hair-r" d="M85 62c8 22 4 42 12 54-14-4-18-26-16-52z" fill="var(--hair-dark)"/>
+        <path d="M37 106c4-8 42-8 46 0l10 44H27z" fill="var(--dress)"/>
+        <path d="M52 104l8 9 8-9" fill="none" stroke="var(--star)" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="54" y="90" width="12" height="12" rx="4" fill="var(--skin)"/>
+        <ellipse cx="60" cy="68" rx="25" ry="27" fill="var(--skin)"/>
+        <path d="M34 64c2-20 16-28 28-27 14 1 26 10 24 27-6-9-14-13-22-11-6 6-18 9-30 11z" fill="var(--hair)"/>
+        <g class="w-eyes">
+          <ellipse cx="50" cy="72" rx="3.4" ry="4.4" fill="var(--eye)"/>
+          <ellipse cx="70" cy="72" rx="3.4" ry="4.4" fill="var(--eye)"/>
+          <circle cx="51.3" cy="70.4" r="1.2" fill="#fff"/>
+          <circle cx="71.3" cy="70.4" r="1.2" fill="#fff"/>
+        </g>
+        <ellipse cx="44" cy="81" rx="4.5" ry="2.6" fill="var(--blush)" opacity=".55"/>
+        <ellipse cx="76" cy="81" rx="4.5" ry="2.6" fill="var(--blush)" opacity=".55"/>
+        <path d="M54 84q6 6 12 0" fill="none" stroke="var(--hair-dark)" stroke-width="2.2" stroke-linecap="round"/>
+        <g transform="rotate(-10 60 42)">
+          <ellipse cx="60" cy="42" rx="36" ry="7" fill="var(--hat)"/>
+          <path d="M42 41L57 6q4-6 7 0l14 35z" fill="var(--hat)"/>
+          <path d="M44 36h32l2 5H42z" fill="var(--hair)"/>
+        </g>
+        <g class="w-arm">
+          <path d="M82 110q14-8 19-24" fill="none" stroke="var(--skin)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M101 86l9-22" stroke="var(--hat)" stroke-width="3" stroke-linecap="round"/>
+          <path class="w-star" d="M111 52l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z" fill="var(--star)"/>
+        </g>
+      </g>
+    </svg>
+  </button>
+</div>
+
+<script>
+(function(){
+  var KEY="cart-order-card-{{STATE_KEY}}", state={};
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){state={}}
+  var boxes=[].slice.call(document.querySelectorAll('[data-key] input[type=checkbox]'));
+  var guide=document.getElementById('guide'), bubble=document.getElementById('bubble'), say=document.getElementById('say'), go=document.getElementById('go');
+  var finalMsg='{{FINAL_MSG}}';
+  var target=null;
+
+  document.querySelectorAll('.rise').forEach(function(el,i){el.style.setProperty('--i',Math.min(i,14))});
+  function holder(b){return b.closest('[data-key]')}
+
+  function speak(text,btn){
+    say.textContent=text; go.textContent=btn||'带我去';
+    bubble.classList.remove('swap'); void bubble.offsetWidth; bubble.classList.add('swap');
+  }
+  function nextStep(){
+    for(var i=0;i<boxes.length;i++){ if(!boxes[i].checked) return holder(boxes[i]); }
+    return null;
+  }
+  function guideNext(){
+    var expired=document.getElementById('expiredAlert');
+    if(!expired.hidden){target=expired; speak(expired.textContent,'查看失效提醒'); return;}
+    var h=nextStep(); target=h;
+    if(!h){ speak(finalMsg,'再看一遍核对清单'); target=document.getElementById('verify'); cheer(true); return; }
+    var isOrder=h.classList.contains('order');
+    speak(h.getAttribute('data-tip'), isOrder ? '带我去这一单' : '带我去这张券');
+  }
+  function render(){
+    var n=0;
+    boxes.forEach(function(b){b.checked=!!state[b.id];var h=holder(b);if(h)h.classList.toggle('done',b.checked);if(b.checked)n++;});
+    document.getElementById('bar').style.width=(boxes.length ? n/boxes.length*100 : 100)+'%';
+    document.getElementById('progressLabel').textContent='已完成 '+n+' / '+boxes.length+' 项';
+  }
+  function burst(x,y,count){
+    if(reduce) return;
+    var colors=['var(--hair)','var(--star)','var(--green)','var(--red)','var(--gold)'];
+    for(var i=0;i<count;i++){
+      var s=document.createElement('span'); s.className='sparkle';
+      s.style.left=x+'px'; s.style.top=y+'px'; s.style.background=colors[i%colors.length];
+      document.body.appendChild(s);
+      var a=Math.random()*Math.PI*2, d=40+Math.random()*70;
+      var anim=s.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate('+Math.cos(a)*d+'px,'+(Math.sin(a)*d-30)+'px) rotate('+(Math.random()*540)+'deg)',opacity:0}],{duration:700+Math.random()*400,easing:'cubic-bezier(.2,.8,.3,1)'});
+      anim.onfinish=(function(el){return function(){el.remove()}})(s);
+    }
+  }
+  function cheer(big){
+    guide.classList.remove('cheer'); void guide.offsetWidth; guide.classList.add('cheer');
+    if(big){ var r=document.getElementById('witch').getBoundingClientRect(); burst(r.left+r.width/2,r.top+20,40); }
+  }
+  boxes.forEach(function(b){
+    b.addEventListener('change',function(){
+      state[b.id]=b.checked; try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+      render();
+      if(b.checked){
+        var r=b.getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/2,14); cheer(false);
+        guide.classList.remove('min');
+        var h=nextStep();
+        if(h){ var praise=['漂亮！','领到啦～','这张稳了！','好耶，又省一笔！']; speak(praise[Math.floor(Math.random()*praise.length)]+' 下一步：'+h.getAttribute('data-tip'), h.classList.contains('order')?'带我去这一单':'带我去这张券'); target=h; }
+        else guideNext();
+      }else{ guideNext(); }
+    });
+  });
+  go.addEventListener('click',function(){
+    if(!target){ guideNext(); }
+    var t=target; if(!t) return;
+    t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+    t.classList.remove('spot'); void t.offsetWidth; t.classList.add('spot');
+  });
+  document.getElementById('hide').addEventListener('click',function(){guide.classList.add('min')});
+  document.getElementById('witch').addEventListener('click',function(){
+    if(guide.classList.contains('min')){guide.classList.remove('min');guideNext();return;}
+    cheer(false); guideNext();
+  });
+  document.getElementById('reset').addEventListener('click',function(){state={};try{localStorage.removeItem(KEY)}catch(e){}render();guideNext();});
+
+  function refreshDeadlines(){
+    var now=Date.now(), overdue=[];
+    document.querySelectorAll('[data-deadline]').forEach(function(el){
+      var t=Date.parse(el.dataset.deadline); if(isNaN(t))return;
+      var h=(t-now)/36e5, order=el.closest('.order');
+      if(!el.dataset.label)el.dataset.label=el.textContent;
+      var status='';
+      if(h<=0){
+        status=' · 已过期，此预计实付已失效，需重新计算';
+        overdue.push(order.querySelector('.idx').textContent);
+        order.querySelector('input[type=checkbox]').disabled=true;
+      }else if(h<1){status=' · 不到 1 小时';}
+      else if(h<48){status=' · 剩余约 '+Math.floor(h)+' 小时';}
+      else{status=' · 剩余约 '+Math.floor(h/24)+' 天';}
+      el.textContent=el.dataset.label+status;
+    });
+    var alert=document.getElementById('expiredAlert');
+    alert.hidden=!overdue.length;
+    if(overdue.length){
+      alert.textContent=overdue.join('、')+' 所用优惠已到期。卡上的实付与合计已失效，请先按当前可用优惠重算。';
+      guideNext();
+    }
+  }
+  refreshDeadlines();
+  if(document.querySelector('[data-deadline]')){
+    setInterval(refreshDeadlines,30000);
+    window.addEventListener('focus',refreshDeadlines);
+  }
+  render();
+  if(boxes.some(function(b){return b.checked})) guideNext(); else target=null;
+})();
+</script>
+</body>
+</html>
