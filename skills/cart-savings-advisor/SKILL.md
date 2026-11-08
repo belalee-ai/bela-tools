@@ -1,8 +1,8 @@
 ---
-name: cart-optimizer
+name: cart-savings-advisor
 description: 双十一 / 618 / 大促购物车比价助手：用户发来淘宝、天猫、京东等平台的购物车录屏或截图，读出商品、价格、官方立减、店铺券、消费券、会员券、国补，按平台和品类归类，算出怎么拆单、哪张券用在哪一单最省，给出照着点就行的下单清单，并判断 88VIP / 京东 PLUS 这类付费会员值不值得开。只要用户提到购物车、凑单、满减、消费券、怎么买最省、到手价、拆单、88VIP 值不值、PLUS 会员、双十一/双11/618 买东西，或者直接丢来一段购物车录屏/截图，都应该使用这个 skill。
 display_name: "购物车比价助手"
-display_name_en: "Cart Optimizer"
+display_name_en: "Cart Savings Advisor"
 description_zh: "根据淘宝、天猫或京东的购物车截图和录屏，比较拆单与用券方案，生成下单清单，并估算开通会员是否划算。"
 description_en: "Analyze Taobao, Tmall, or JD.com cart screenshots or recordings to compare order splits and coupons, build a checkout checklist, and estimate whether a paid membership is worth it."
 examples_zh:
