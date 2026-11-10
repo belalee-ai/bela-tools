@@ -1,7 +1,7 @@
 <!-- bela-skills-migration -->
 > 本仓库的相关 Skill 已收录到 [Bela Skills](https://github.com/belalee-ai/bela-skills)。推荐用 `npx skills add belalee-ai/bela-skills` 安装。
 >
-> 合集入口为 [`bela-github-publish`](https://github.com/belalee-ai/bela-skills/tree/main/bela-github-publish)、[`bela-skill-hygiene`](https://github.com/belalee-ai/bela-skills/tree/main/bela-skill-hygiene)。当前仓库保留旧版文档、链接和提交历史。
+> 合集入口为 [`bela-github-publish`](https://github.com/belalee-ai/bela-skills/tree/main/bela-github-publish)、[`bela-skill-hygiene`](https://github.com/belalee-ai/bela-skills/tree/main/bela-skill-hygiene)、[`bela-cart-savings-advisor`](https://github.com/belalee-ai/bela-skills/tree/main/bela-cart-savings-advisor)。当前仓库保留旧版文档、链接和提交历史。
 
 [中文版](./README.zh-CN.md)
 
